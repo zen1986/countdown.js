@@ -19,9 +19,9 @@
             this.stroke.attr("opacity", 1);
             this.stroke.attr("fill", color);
         }
-        else
+        else {
             this.stroke.attr("opacity", 0);
-
+        }
     }
     
     // number model class constructor 
@@ -52,35 +52,27 @@
 
         this.strokes =new Array(8); 
 
-        var g = this.model.append("svg:g")
-                    .attr("transform", "translate("+m+","+m+")");
+        var g = this.model.append("svg:g").attr("transform", "translate("+m+","+m+")");
 
-        var g1 = g.append("svg:g")
-                    .attr("transform", "translate(0, "+x+")");
+        var g1 = g.append("svg:g").attr("transform", "translate(0, "+x+")");
         this.strokes[1] = new Stroke(x, y, z, g1, color);
 
-        var g2 = g.append("svg:g")
-                    .attr("transform", "translate(0, "+(y+2*x)+")");
+        var g2 = g.append("svg:g").attr("transform", "translate(0, "+(y+2*x)+")");
         this.strokes[2] = new Stroke(x, y, z, g2, color);
 
-        var g3 = g.append("svg:g")
-                    .attr("transform", "rotate(270) translate(-"+(2*y+3*x)+", "+x+")");
+        var g3 = g.append("svg:g").attr("transform", "rotate(270) translate(-"+(2*y+3*x)+", "+x+")");
         this.strokes[3] = new Stroke(x, y, z, g3, color);
 
-        var g4 = g.append("svg:g")
-                    .attr("transform", "translate("+(x+y)+", "+(y+2*x)+")");
+        var g4 = g.append("svg:g").attr("transform", "translate("+(x+y)+", "+(y+2*x)+")");
         this.strokes[4] = new Stroke(x, y, z, g4, color);
 
-        var g5 = g.append("svg:g")
-                    .attr("transform", "translate("+(x+y)+", "+x+")");
+        var g5 = g.append("svg:g").attr("transform", "translate("+(x+y)+", "+x+")");
         this.strokes[5] = new Stroke(x, y, z, g5, color);
 
-        var g6 = g.append("svg:g")
-                    .attr("transform", "rotate(270) translate(-"+x+", "+x+")");
+        var g6 = g.append("svg:g").attr("transform", "rotate(270) translate(-"+x+", "+x+")");
         this.strokes[6] = new Stroke(x, y, z, g6, color);
 
-        var g7 = g.append("svg:g")
-                    .attr("transform", "rotate(270) translate(-"+(y+2*x)+", "+x+")");
+        var g7 = g.append("svg:g").attr("transform", "rotate(270) translate(-"+(y+2*x)+", "+x+")");
         this.strokes[7] = new Stroke(x, y, z, g7, color);
 
     };
@@ -109,7 +101,7 @@
                 strokesOn = [6,1,7,3,4];
                 break;
             case 6:
-                strokesOn = [2,1,5,3,4,6,7];
+                strokesOn = [2,1,3,4,6,7];
                 break;
             case 7:
                 strokesOn = [4,6,5];
@@ -125,6 +117,7 @@
         }
 
         var self=this;
+
         // reset first
         this.strokes.forEach(function (s) {s.fill();});
         strokesOn.forEach(function (s) {self.strokes[s].fill(self.fill);});
@@ -133,11 +126,20 @@
     Countdown.init = function () {
         var clock, days, hours, minutes, seconds;
 
-        clock = d3.select("body").append("div").attr("class", "clock");
+        d3.select("body").append("h1").attr("class", "countdown-title");
+
+        clock = d3.select("body").append("div").attr("class", "center clock");
         days = clock.append("div").attr("class", "days");
         hours = clock.append("div").attr("class", "hours");
         minutes = clock.append("div").attr("class", "minutes");
         seconds = clock.append("div").attr("class", "seconds");
+
+        days.append("h3").text("days");
+        hours.append("h3").text("hours");
+        minutes.append("h3").text("minutes");
+        seconds.append("h3").text("seconds");
+
+        d3.select("body").append("div").attr("class", "listing");
         
         this.clock = {};
 
@@ -239,13 +241,16 @@
     Countdown.runClock = function (date) {
         var self = this;
         var targetTime = date.getTime();
+
+        d3.select("h1.countdown-title").text("Count Down towards: "+date.toDateString());
         this.timer = setInterval(function () {
             self.updateClock(targetTime);
             },1000);
     }
 
 
-    var date = new Date(2012, 1, 23, 18, 21);
+    var date = new Date(2012, 3, 28);
     Countdown.init();
     Countdown.runClock(date);
+
 })();
