@@ -19,143 +19,186 @@
     }
     
     // number model class constructor 
-    var Model = function (container) {
-        this.w= 200;
-        this.h= 300;
+    var Model = function (container, clas) {
+        this.w= 50;
+        this.h= 75;
         this.bgColor = "black";
         this.model = container.append("svg:svg")
-            .attr("class", "number_model")
             .style("width", this.w)
             .style("height", this.h)
             .style("background-color", this.bgColor);
 
+        if (clas) this.model.attr("class", clas);
+
         // initialize, draw the strokes
         this.initModel();
+        this.makeNumber(0);
     };
 
     Model.prototype.initModel = function () {
-        var x = 15, y = 100, z=6, color=this.bgColor;
+        var x = this.w/10, y = this.h/3, z=x, m=(this.w - 2*y+3*x)/2, color=this.bgColor;
+
+        this.strokes =new Array(8); 
 
         var g = this.model.append("svg:g")
-                    .attr("transform", "translate(40, 40)");
+                    .attr("transform", "translate("+m+","+m+")");
 
         var g1 = g.append("svg:g")
                     .attr("transform", "translate(0, "+x+")");
-        this.s1 = new Stroke(x, y, z, g1, color);
+        this.strokes[1] = new Stroke(x, y, z, g1, color);
 
         var g2 = g.append("svg:g")
                     .attr("transform", "translate(0, "+(y+2*x)+")");
-        this.s2 = new Stroke(x, y, z, g2, color);
+        this.strokes[2] = new Stroke(x, y, z, g2, color);
 
         var g3 = g.append("svg:g")
                     .attr("transform", "rotate(270) translate(-"+(2*y+3*x)+", "+x+")");
-        this.s3 = new Stroke(x, y, z, g3, color);
+        this.strokes[3] = new Stroke(x, y, z, g3, color);
 
         var g4 = g.append("svg:g")
                     .attr("transform", "translate("+(x+y)+", "+(y+2*x)+")");
-        this.s4 = new Stroke(x, y, z, g4, color);
+        this.strokes[4] = new Stroke(x, y, z, g4, color);
 
         var g5 = g.append("svg:g")
                     .attr("transform", "translate("+(x+y)+", "+x+")");
-        this.s5 = new Stroke(x, y, z, g5, color);
+        this.strokes[5] = new Stroke(x, y, z, g5, color);
 
         var g6 = g.append("svg:g")
                     .attr("transform", "rotate(270) translate(-"+x+", "+x+")");
-        this.s6 = new Stroke(x, y, z, g6, color);
+        this.strokes[6] = new Stroke(x, y, z, g6, color);
 
         var g7 = g.append("svg:g")
                     .attr("transform", "rotate(270) translate(-"+(y+2*x)+", "+x+")");
-        this.s7 = new Stroke(x, y, z, g7, color);
+        this.strokes[7] = new Stroke(x, y, z, g7, color);
 
     };
 
     Model.prototype.makeNumber = function (num) {
+        var strokesOn;
         this.fill = "white";
 
         switch (num) {
             case 0:
-                this.s1.fill(this.fill);
-                this.s2.fill(this.fill);
-                this.s3.fill(this.fill);
-                this.s4.fill(this.fill);
-                this.s5.fill(this.fill);
-                this.s6.fill(this.fill);
+                strokesOn = [1,2,3,4,5,6];
                 break;
             case 1:
-                this.s5.fill(this.fill);
-                this.s4.fill(this.fill);
+                strokesOn = [5,4];
                 break;
             case 2:
-                this.s6.fill(this.fill);
-                this.s5.fill(this.fill);
-                this.s7.fill(this.fill);
-                this.s2.fill(this.fill);
-                this.s3.fill(this.fill);
+                strokesOn = [6,7,2,3,5];
                 break;
             case 3:
-                this.s6.fill(this.fill);
-                this.s5.fill(this.fill);
-                this.s7.fill(this.fill);
-                this.s4.fill(this.fill);
-                this.s3.fill(this.fill);
+                strokesOn = [6,7,5,3,4];
                 break;
             case 4:
-                this.s1.fill(this.fill);
-                this.s7.fill(this.fill);
-                this.s5.fill(this.fill);
-                this.s4.fill(this.fill);
+                strokesOn = [1,7,5,4];
                 break;
             case 5:
-                this.s6.fill(this.fill);
-                this.s1.fill(this.fill);
-                this.s7.fill(this.fill);
-                this.s4.fill(this.fill);
-                this.s3.fill(this.fill);
+                strokesOn = [6,1,7,3,4];
                 break;
             case 6:
-                this.s1.fill(this.fill);
-                this.s2.fill(this.fill);
-                this.s3.fill(this.fill);
-                this.s4.fill(this.fill);
-                this.s6.fill(this.fill);
-                this.s7.fill(this.fill);
+                strokesOn = [2,1,5,3,4,6,7];
                 break;
             case 7:
-                this.s4.fill(this.fill);
-                this.s5.fill(this.fill);
-                this.s6.fill(this.fill);
+                strokesOn = [4,6,5];
                 break;
             case 8:
-                this.s1.fill(this.fill);
-                this.s2.fill(this.fill);
-                this.s3.fill(this.fill);
-                this.s4.fill(this.fill);
-                this.s5.fill(this.fill);
-                this.s6.fill(this.fill);
-                this.s7.fill(this.fill);
+                strokesOn = [2,1,5,3,4,6,7];
                 break;
             case 9:
-                this.s1.fill(this.fill);
-                this.s3.fill(this.fill);
-                this.s4.fill(this.fill);
-                this.s5.fill(this.fill);
-                this.s6.fill(this.fill);
-                this.s7.fill(this.fill);
+                strokesOn = [1,5,3,4,6,7];
                 break;
             default:
-            break;
+                break;
         }
+
+        var self=this;
+        // reset first
+        this.strokes.forEach(function (s) {s.fill(self.bgColor);});
+        strokesOn.forEach(function (s) {self.strokes[s].fill(self.fill);});
     }
 
-    var container = d3.select("#content");
-     new Model(container).makeNumber(1);
-     new Model(container).makeNumber(2);
-     new Model(container).makeNumber(3);
-     new Model(container).makeNumber(4);
-     new Model(container).makeNumber(5);
-     new Model(container).makeNumber(6);
-     new Model(container).makeNumber(7);
-     new Model(container).makeNumber(8);
-     new Model(container).makeNumber(9);
+    Countdown.init = function () {
+        var clock, days, hours, minutes, seconds;
 
+        clock = d3.select("body").append("div").attr("class", "clock");
+        days = clock.append("div").attr("class", "days");
+        hours = clock.append("div").attr("class", "hours");
+        minutes = clock.append("div").attr("class", "minutes");
+        seconds = clock.append("div").attr("class", "seconds");
+        
+        this.clock = {};
+
+        this.clock.days = {};
+        this.clock.days.thousand = new Model(days, "thousand");
+        this.clock.days.hundred= new Model(days, "hundred");
+        this.clock.days.ten= new Model(days, "ten");
+        this.clock.days.one= new Model(days, "one");
+
+        this.clock.hours= {};
+        this.clock.hours.ten= new Model(hours, "ten");
+        this.clock.hours.one= new Model(hours, "one");
+
+        this.clock.minutes= {};
+        this.clock.minutes.ten = new Model(minutes, "ten");
+        this.clock.minutes.one = new Model(minutes, "one");
+
+        this.clock.seconds= {};
+        this.clock.seconds.ten = new Model(seconds, "ten");
+        this.clock.seconds.one = new Model(seconds, "one");
+    };
+
+    Countdown.updateClock = function (date) {
+        var targetTime, nowTime, diffTime;
+        targetTime = date.getTime();
+        nowTime = Date.now();
+
+        if (targetTime < nowTime) return;
+        diffTime = targetTime - nowTime;
+
+        var days, hours, minutes, seconds, remainder;
+
+        remainder = diffTime;
+
+        days = remainder / (1000 * 60 * 60 * 24);
+        remainder = remainder % (1000 * 60 * 60 * 24);
+
+        hours = remainder / (1000 * 60 * 60);
+        remainder = remainder % (1000 * 60 * 60);
+
+        minutes = remainder / (1000 * 60);
+        remainder = remainder % (1000 * 60);
+
+        seconds = remainder / (1000);
+        remainder = remainder % (1000);
+
+        days = ~~days;
+        hours = ~~hours;
+        minutes = ~~minutes;
+        seconds = ~~seconds;
+
+        this.clock.days.thousand.makeNumber(~~(days/1000));
+        this.clock.days.hundred.makeNumber(~~(days%1000/100));
+        this.clock.days.ten.makeNumber(~~(days%100/10));
+        this.clock.days.one.makeNumber(days%10);
+
+        this.clock.hours.ten.makeNumber(~~(hours/10));
+        this.clock.hours.one.makeNumber(hours%10);
+
+        this.clock.minutes.ten.makeNumber(~~(minutes/10));
+        this.clock.minutes.one.makeNumber(minutes%10);
+
+        this.clock.seconds.ten.makeNumber(~~(seconds/10));
+        this.clock.seconds.one.makeNumber(seconds%10);
+    }
+
+    Countdown.runClock = function (date) {
+        var self = this;
+        setInterval(function () {self.updateClock(date);},1000);
+    }
+
+
+    var date = new Date(2012, 1, 23, 17);
+    Countdown.init();
+    Countdown.runClock(date);
 })();

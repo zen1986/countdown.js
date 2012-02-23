@@ -1,0 +1,8 @@
+svg {
+    margin-left: 2px;
+}
+
+.clock>div {
+    display: inline-block;
+    margin-left: 10px;
+}
