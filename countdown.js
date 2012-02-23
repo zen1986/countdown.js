@@ -15,18 +15,30 @@
     };
 
     Stroke.prototype.fill = function (color) {
-        this.stroke.attr("fill", color);
+        if (color) {
+            this.stroke.attr("opacity", 1);
+            this.stroke.attr("fill", color);
+        }
+        else
+            this.stroke.attr("opacity", 0);
+
     }
     
     // number model class constructor 
     var Model = function (container, clas) {
-        this.w= 50;
-        this.h= 75;
+        this.w= 100;
+        this.h= 150;
         this.bgColor = "black";
         this.model = container.append("svg:svg")
             .style("width", this.w)
-            .style("height", this.h)
-            .style("background-color", this.bgColor);
+            .style("height", this.h);
+
+        // background
+        this.bg = this.model.append("svg:rect")
+            .attr("class", "background")
+            .attr("width", this.w)
+            .attr("height", this.h)
+            .attr("fill", this.bgColor);
 
         if (clas) this.model.attr("class", clas);
 
@@ -114,7 +126,7 @@
 
         var self=this;
         // reset first
-        this.strokes.forEach(function (s) {s.fill(self.bgColor);});
+        this.strokes.forEach(function (s) {s.fill();});
         strokesOn.forEach(function (s) {self.strokes[s].fill(self.fill);});
     }
 
@@ -128,6 +140,26 @@
         seconds = clock.append("div").attr("class", "seconds");
         
         this.clock = {};
+
+        this.clock.blink = function () {
+            // specify 2 colors
+            var colors=[], count=100, dura=100, times=20;
+            colors.push("black");
+            colors.push("green");
+
+            function anim() {
+                d3.select(this).transition().duration(dura).attr("fill", colors[0]);
+            }
+
+            // start immediately
+            d3.selectAll("rect.background").transition().duration(dura).attr("fill", colors[1]).each("end", anim);
+            var i = setInterval(function () {
+                d3.selectAll("rect.background").transition().duration(dura).attr("fill", colors[1]).each("end", anim);
+            }, dura*2);
+            setTimeout(function () {
+                clearInterval(i);
+            }, dura*2*times);
+        }
 
         this.clock.days = {};
         this.clock.days.thousand = new Model(days, "thousand");
@@ -148,12 +180,15 @@
         this.clock.seconds.one = new Model(seconds, "one");
     };
 
-    Countdown.updateClock = function (date) {
-        var targetTime, nowTime, diffTime;
-        targetTime = date.getTime();
+    Countdown.updateClock = function (targetTime) {
+        var nowTime, diffTime;
         nowTime = Date.now();
 
-        if (targetTime < nowTime) return;
+        if (targetTime <= nowTime ) {
+            this.timeUp();
+            return;
+        }
+
         diffTime = targetTime - nowTime;
 
         var days, hours, minutes, seconds, remainder;
@@ -192,13 +227,25 @@
         this.clock.seconds.one.makeNumber(seconds%10);
     }
 
+
+    Countdown.timeUp = function () {
+        if (this.timer!=undefined) {
+            clearInterval(this.timer);
+            this.timer = undefined;
+            this.clock.blink();
+        }
+    }
+
     Countdown.runClock = function (date) {
         var self = this;
-        setInterval(function () {self.updateClock(date);},1000);
+        var targetTime = date.getTime();
+        this.timer = setInterval(function () {
+            self.updateClock(targetTime);
+            },1000);
     }
 
 
-    var date = new Date(2012, 1, 23, 17);
+    var date = new Date(2012, 1, 23, 18, 21);
     Countdown.init();
     Countdown.runClock(date);
 })();
