@@ -78,44 +78,22 @@
     };
 
     Model.prototype.makeNumber = function (num) {
-        var strokesOn;
         this.fill = "white";
 
-        switch (num) {
-            case 0:
-                strokesOn = [1,2,3,4,5,6];
-                break;
-            case 1:
-                strokesOn = [5,4];
-                break;
-            case 2:
-                strokesOn = [6,7,2,3,5];
-                break;
-            case 3:
-                strokesOn = [6,7,5,3,4];
-                break;
-            case 4:
-                strokesOn = [1,7,5,4];
-                break;
-            case 5:
-                strokesOn = [6,1,7,3,4];
-                break;
-            case 6:
-                strokesOn = [2,1,3,4,6,7];
-                break;
-            case 7:
-                strokesOn = [4,6,5];
-                break;
-            case 8:
-                strokesOn = [2,1,5,3,4,6,7];
-                break;
-            case 9:
-                strokesOn = [1,5,3,4,6,7];
-                break;
-            default:
-                break;
-        }
-
+        var strokMap = [
+            [1,2,3,4,5,6],
+            [5,4],
+            [6,7,2,3,5],
+            [6,7,5,3,4],
+            [1,7,5,4],
+            [6,1,7,3,4],
+            [2,1,3,4,6,7],
+            [4,6,5],
+            [2,1,5,3,4,6,7],
+            [1,5,3,4,6,7],
+            ];
+        
+        var strokesOn=strokMap[num];
         var self=this;
 
         // reset first
