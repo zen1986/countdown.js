@@ -8,7 +8,28 @@ div {
 }
 
 svg {
-    margin-left: 2px;
+}
+
+ul {
+	margin-right: 30px;
+}
+li {
+	width: 100%;
+	list-style:none;
+	text-align: left;
+	line-height: 2em;
+	padding-left: 10px;
+	padding-top: 0.2em;
+	padding-bottom: 0.2em;
+}
+
+li:hover {
+	cursor:pointer;
+}
+
+li.selected {
+	background-color: white;
+	color: black;
 }
 
 .center {
@@ -16,11 +37,18 @@ svg {
     margin-right: auto;
 }
 
+div.dot {
+	background-color: lime;
+}
+
 .listing {
     margin-top: 20px;
-    width: 100%;
-    min-height: 300px;
-    background-color: rgba(0,0,0,0.2);
+    width: 80%;
+	max-height: 500px;
+	overflow-y: auto;
+    background-color: rgba(0,0,0,0.8);
+	border-radius: 10px;
+	color: white;
 }
 
 div#content {
@@ -29,5 +57,8 @@ div#content {
 
 .clock>div {
     display: inline-block;
-    margin-left: 10px;
+}
+
+.item_text {
+	font: 1.6em bold Courier, san-serif ;
 }

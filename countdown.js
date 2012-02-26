@@ -1,9 +1,8 @@
 (function () {
-    // my namespace
-    var Countdown = {};
     
     // stroke class constructor
     var Stroke = function (x,y,z,g,color) {
+
         this.stroke = g.append("svg:rect")
             .attr("x", 0)
             .attr("y", 0)
@@ -11,8 +10,10 @@
             .attr("height", y)
             .attr("rx", z)
             .attr("fill", color)
+			.attr("class", "stroke")
             .attr("ry", z);
     };
+
 
     Stroke.prototype.fill = function (color) {
         if (color) {
@@ -26,11 +27,11 @@
     
     // number model class constructor 
     var Model = function (container, clas) {
-        this.w= 100;
-        this.h= 150;
         this.bgColor = "black";
+
         this.model = container.append("svg:svg")
             .style("width", this.w)
+			.attr("class", "model "+clas)
             .style("height", this.h);
 
         // background
@@ -39,8 +40,6 @@
             .attr("width", this.w)
             .attr("height", this.h)
             .attr("fill", this.bgColor);
-
-        if (clas) this.model.attr("class", clas);
 
         // initialize, draw the strokes
         this.initModel();
@@ -99,77 +98,70 @@
         // reset first
         this.strokes.forEach(function (s) {s.fill();});
         strokesOn.forEach(function (s) {self.strokes[s].fill(self.fill);});
-    }
+    };
 
-    Countdown.init = function () {
-        var clock, days, hours, minutes, seconds;
+	// there is only one instance of clock
+    var Clock= {};
 
-        d3.select("body").append("h1").attr("class", "countdown-title");
+    Clock.init = function () {
+        var clock, days, hours, minutes, seconds, modelHeight=150, modelWidth=100;
+		
+		// remove clock
+		d3.select("#clock").selectAll(".clock").remove();
 
-        clock = d3.select("body").append("div").attr("class", "center clock");
+		// remove timer
+		if (this.timer) 
+			clearInterval(this.timer);
+
+		// append clock div
+        clock = d3.select("#clock").append("div").attr("class", "center clock");
         days = clock.append("div").attr("class", "days");
+		dot1 = clock.append("div").attr("class", "dot");
         hours = clock.append("div").attr("class", "hours");
+		dot2 = clock.append("div").attr("class", "dot");
         minutes = clock.append("div").attr("class", "minutes");
+		dot3 = clock.append("div").attr("class", "dot");
         seconds = clock.append("div").attr("class", "seconds");
 
+		// append label 
         days.append("h3").text("days");
         hours.append("h3").text("hours");
         minutes.append("h3").text("minutes");
         seconds.append("h3").text("seconds");
 
-        d3.select("body").append("div").attr("class", "listing");
-        
-        this.clock = {};
+		Model.prototype.w = modelWidth;
+		Model.prototype.h = modelHeight;
 
-        this.clock.blink = function () {
-            // specify 2 colors
-            var colors=[], count=100, dura=100, times=20;
-            colors.push("black");
-            colors.push("green");
+		// display object
+		this.display = {};
 
-            function anim() {
-                d3.select(this).transition().duration(dura).attr("fill", colors[0]);
-            }
+        this.display.days = {
+			thousand : new Model(days, "thousand"),
+			hundred  : new Model(days, "hundred"),
+			ten      : new Model(days, "ten"),
+			one      : new Model(days, "one"),
+			};
 
-            // start immediately
-            d3.selectAll("rect.background").transition().duration(dura).attr("fill", colors[1]).each("end", anim);
-            var i = setInterval(function () {
-                d3.selectAll("rect.background").transition().duration(dura).attr("fill", colors[1]).each("end", anim);
-            }, dura*2);
-            setTimeout(function () {
-                clearInterval(i);
-            }, dura*2*times);
-        }
+        this.display.hours= {
+			ten	: new Model(hours, "ten"),
+			one : new Model(hours, "one"),
+			};
 
-        this.clock.days = {};
-        this.clock.days.thousand = new Model(days, "thousand");
-        this.clock.days.hundred= new Model(days, "hundred");
-        this.clock.days.ten= new Model(days, "ten");
-        this.clock.days.one= new Model(days, "one");
+        this.display.minutes= {
+			ten : new Model(minutes, "ten"),
+			one : new Model(minutes, "one"),
+			};
 
-        this.clock.hours= {};
-        this.clock.hours.ten= new Model(hours, "ten");
-        this.clock.hours.one= new Model(hours, "one");
+        this.display.seconds= {
+			ten : new Model(seconds, "ten"),
+			one : new Model(seconds, "one"),
+			};
 
-        this.clock.minutes= {};
-        this.clock.minutes.ten = new Model(minutes, "ten");
-        this.clock.minutes.one = new Model(minutes, "one");
-
-        this.clock.seconds= {};
-        this.clock.seconds.ten = new Model(seconds, "ten");
-        this.clock.seconds.one = new Model(seconds, "one");
+		d3.selectAll("div.dot").style("width", 10).style("height", modelHeight);
     };
 
-    Countdown.updateClock = function (targetTime) {
-        var nowTime, diffTime;
-        nowTime = Date.now();
+	Clock.normal = function (diffTime) {
 
-        if (targetTime <= nowTime ) {
-            this.timeUp();
-            return;
-        }
-
-        diffTime = targetTime - nowTime;
 
         var days, hours, minutes, seconds, remainder;
 
@@ -192,43 +184,110 @@
         minutes = ~~minutes;
         seconds = ~~seconds;
 
-        this.clock.days.thousand.makeNumber(~~(days/1000));
-        this.clock.days.hundred.makeNumber(~~(days%1000/100));
-        this.clock.days.ten.makeNumber(~~(days%100/10));
-        this.clock.days.one.makeNumber(days%10);
+        this.display.days.thousand.makeNumber(~~(days/1000));
+        this.display.days.hundred.makeNumber(~~(days%1000/100));
+        this.display.days.ten.makeNumber(~~(days%100/10));
+        this.display.days.one.makeNumber(days%10);
 
-        this.clock.hours.ten.makeNumber(~~(hours/10));
-        this.clock.hours.one.makeNumber(hours%10);
+        this.display.hours.ten.makeNumber(~~(hours/10));
+        this.display.hours.one.makeNumber(hours%10);
 
-        this.clock.minutes.ten.makeNumber(~~(minutes/10));
-        this.clock.minutes.one.makeNumber(minutes%10);
+        this.display.minutes.ten.makeNumber(~~(minutes/10));
+        this.display.minutes.one.makeNumber(minutes%10);
 
-        this.clock.seconds.ten.makeNumber(~~(seconds/10));
-        this.clock.seconds.one.makeNumber(seconds%10);
-    }
+        this.display.seconds.ten.makeNumber(~~(seconds/10));
+        this.display.seconds.one.makeNumber(seconds%10);
+	};
 
+	// redraw the clock in interval
+    Clock.update= function (targetTime) {
+        var nowTime, diffTime;
+        nowTime = Date.now();
 
-    Countdown.timeUp = function () {
+        if (targetTime <= nowTime ) {
+            this.timeUp();
+            return;
+        }
+
+        diffTime = targetTime - nowTime;
+
+		this.normal(diffTime);
+    };
+
+    Clock.timeUp = function () {
+        var blink = function () {
+            // specify 2 colors
+            var colors=[], count=100, dura=100, times=20;
+            colors.push("black");
+            colors.push("green");
+
+            function anim() {
+                d3.select(this).transition().duration(dura).attr("fill", colors[0]);
+            }
+
+            // start immediately
+            d3.selectAll("rect.background").transition().duration(dura).attr("fill", colors[1]).each("end", anim);
+
+            var i = setInterval(function () {
+                d3.selectAll("rect.background").transition().duration(dura).attr("fill", colors[1]).each("end", anim);
+            }, dura*2);
+
+            setTimeout(function () {
+                clearInterval(i);
+            }, dura*2*times);
+        }
+
         if (this.timer!=undefined) {
             clearInterval(this.timer);
             this.timer = undefined;
-            this.clock.blink();
+            blink();
         }
-    }
+    };
 
-    Countdown.runClock = function (date) {
+    Clock.run= function (targetTime) {
         var self = this;
-        var targetTime = date.getTime();
 
-        d3.select("h1.countdown-title").text("Count Down towards: "+date.toDateString());
+		// start immediately
+		this.update(targetTime);
         this.timer = setInterval(function () {
-            self.updateClock(targetTime);
+            self.update(targetTime);
             },1000);
-    }
+    };
 
 
-    var date = new Date(2012, 3, 28);
-    Countdown.init();
-    Countdown.runClock(date);
+///testing aread/////////////////////////////
+///testing aread/////////////////////////////
+///testing aread/////////////////////////////
+///testing aread/////////////////////////////
 
+	var data = [
+		{text: "Run 350 pack collection", time: new Date(2012, 3, 6).getTime()},
+		{text: "ZengQiang's Birthday",  time: new Date(2012, 08, 18).getTime()},
+		{text: "Flight to Guangzhou",  time: new Date(2012, 03, 28).getTime()},
+		{text: "Xiaomao's Birthday",  time: new Date(2013, 01, 07).getTime()},
+	];
+
+	//title
+	d3.select("#widget").insert("h1", "#clock").attr("class", "title clock").text(data[0].text+" : You have left");
+
+    Clock.init();
+	Clock.run(data[0].time);
+
+	var loadListing = function (data) {
+		var listing = d3.select("#widget").append("div").attr("class", "listing").append("ul");
+		listing.selectAll("li.item")
+				.data(data).enter().append("li")
+				.attr("class", function (d, i) {if (i==0) return "selected item";else return "item";})
+				.html(function (d) {return "<span class='item_text'>"+d.text+"</span> : <span class='item_time'>"+ new Date(d.time).toDateString()+"</span>";})
+				.on("click", function (d) {
+					Clock.init();
+					Clock.run(d.time);
+					d3.select(".clock.title").text(d.text+" : You have left");
+					d3.selectAll("li.item").classed("selected", false);
+					d3.select(this).classed("selected", true);
+				});
+	}
+
+	//listing area
+	loadListing(data);
 })();
